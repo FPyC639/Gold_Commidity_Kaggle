@@ -4,3 +4,4 @@ Using  the dataset that is availible in this link from Kaggle I was able to crea
 
 https://www.kaggle.com/datasets/debashish311601/commodity-prices?resource=download
 
+![Time Series Plot](Times_Series_Plot.png)
