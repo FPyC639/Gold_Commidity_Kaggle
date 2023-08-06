@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Line Graph with Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div>
+        <canvas id="lineChart"></canvas>
+    </div>
+
+    <script>
+        // Function to fetch data from MySQL database
+        function fetchDataFromMySQL() {
+            return fetch('retrieve.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to format data for Chart.js
+        function formatDataForChart(data) {
+            const dates = [];
+            const yValues = [];
+            data.forEach(entry => {
+                // Parse the date using Date constructor
+                const parsedDate = new Date(entry.Date);
+                dates.push(parsedDate);
+                yValues.push(entry.GOLD);
+            });
+            const format = dates.map(dateStr => new Date(dateStr).toISOString().slice(0, 10))
+            console.log(format);
+            console.log(yValues);
+            return {
+                format,
+                yValues
+            };
+        }
+
+        // Function to create the line chart
+        function createLineChart(dates, yValues) {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Line Graph with Floating Point Y Values',
+                        data: yValues,
+                        borderColor: 'blue',
+                        backgroundColor: 'transparent',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: 'blue'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time', // Use 'time' scale type
+                            time: {
+                                tooltipFormat: 'yyyy-MM-dd', // Format for tooltip display
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'yyyy-MM-dd'
+                                },
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Gold Price Index'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        fetchDataFromMySQL()
+            .then(data => {
+                const formattedData = formatDataForChart(data);
+                createLineChart(formattedData.format, formattedData.yValues);
+            });
+
+    </script>
+</body>
+</html>
